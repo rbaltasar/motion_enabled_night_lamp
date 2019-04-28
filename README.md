@@ -17,9 +17,13 @@ Depending on the configured lighting level of the LEDs, when the lamp is on it m
 
 To ensure the third requirement of being on until the light is no longer needed, once the system is on, a timer will start. Whenever a new motion event is detected, the timer will be restarted. When a timeout event happens, the light will switch off.
 
+![Alt text](Images/Diagram_Close_view.png)
+
 # The mechanics
 This repository contains a 3D model of a box (base, top and cover) that is specifically designed to prevent overlapping of the two motion sensors.
 It also leaves an open slot to allow the light sensor to “see”. I would recommend to cover it with a transparent material. The light threshold will need to be adapted to the light conditions of the room and the cover material chosen.
+
+![Alt text](Images/Model.png)
 
 I decided to embed the light in the box, to make a single-piece device, so I also left open slots for the LEDs. It is of course possible to modify the 3D design to place the LEDs in a different way, separate the lighting device from the “control” box…
 It should also be doable to use a different lighting device, like a normal map controlled by a relay or an IR-controlled bulb.
@@ -34,6 +38,7 @@ The device consists of the following hardware components:
 * WS2812B led stripe and 5v power supply. More information about how to handle and power this led stripe: https://www.pololu.com/product/2547
 * 330 Ohm resistor.
 
+![Alt text](Images/Schematic.png)
 
 # Software & Configuration
 To configure the software and flash it into your Arduino, follow the next steps:
@@ -49,7 +54,18 @@ To configure the software and flash it into your Arduino, follow the next steps:
 * STARTUP_EFFECT:
   * ON: enables a colorful effect when the system is powered ON.
   * OFF: disables the effect.
+* LIGHT_EFFECT:
+  * 0: no effect.
+  * 1: led array effect. (DELAY_ARRAY has to be configured as well then)
+  * 2: fade effect. (DELAY_FADE has to be configured as well then)
 * KEEP_ON_CONDITION:
   * SINGLE_MOTION: once the light is ON, a motion event detected by either of the sensors will restart the timer.
   * DOUBLE_MOTION: once the light is ON, the timer will be restarted only if the ON condition is triggered again (both sensors detect motion within a defined time).
 3. Flash the software into the Arduino.
+
+#Final result
+It is not the prettiest home automation gadget, but it does its job.
+![Alt text](Images/Lamp_off.JPG)
+![Alt text](Images/Lamp_on.JPG)
+
+Here a video of the lamp doing its thing:

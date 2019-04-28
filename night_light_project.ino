@@ -18,9 +18,9 @@ bool light_state = false;
 
 void setup()
 {
-#if (DEBUG_ENABLED == 1)
+//#if (DEBUG_ENABLED == 1)
   Serial.begin(115200);
-#endif
+//#endif
 
   /* Attach door interrupt callback */
   attachInterrupt(digitalPinToInterrupt(PRESENCE_SENSOR_1), presence_sensor_1_isr, RISING);
@@ -109,21 +109,102 @@ float get_light_amount()
 
 void presence_sensor_1_isr()
 {
-#if (DEBUG_ENABLED == 1)
+//#if (DEBUG_ENABLED == 1)
   Serial.println("Interrupt 1 detected");
-#endif
+//#endif
   last_detection[0] = millis();
   
 }
 
 void presence_sensor_2_isr()
 {
-#if (DEBUG_ENABLED == 1)
+//#if (DEBUG_ENABLED == 1)
   Serial.println("Interrupt 2 detected");
-#endif
+//#endif
   last_detection[1] = millis();
   
 }
+
+void led_array_effect(bool state)
+{
+  if(state)
+  {  
+    for(uint8_t i = 0; i < NUM_LEDS; i++)
+    {
+      leds[i] = CRGB(LIGHT_VALUE_R,LIGHT_VALUE_G,LIGHT_VALUE_B);
+      FastLED.show();
+      delay(DELAY_ARRAY);
+    } 
+  }
+  else
+  {
+    for(uint8_t i = 0; i < NUM_LEDS; i++)
+    {
+      leds[i] = CRGB(0,0,0);
+      FastLED.show();
+      delay(DELAY_ARRAY);
+    } 
+  }
+}
+
+void fade_effect(bool state)
+{
+
+  bool exitCondition = false;
+
+  if(state)
+  {
+    uint8_t step_r = 0;
+    uint8_t step_g = 0;
+    uint8_t step_b = 0;
+    do
+    { 
+      for(uint8_t i = 0; i < NUM_LEDS; i++) 
+      {
+        leds[i] = CRGB(step_r,step_g,step_b);
+      }
+
+      ++step_r > LIGHT_VALUE_R ? step_r = LIGHT_VALUE_R : step_r = step_r;
+      ++step_g > LIGHT_VALUE_G ? step_g = LIGHT_VALUE_G : step_g = step_g;
+      ++step_b > LIGHT_VALUE_B ? step_b = LIGHT_VALUE_B : step_b = step_b;
+
+      if( (step_r == LIGHT_VALUE_R) && (step_g == LIGHT_VALUE_G) && (step_b == LIGHT_VALUE_B) ) exitCondition = true;
+      
+      FastLED.show();
+      delay(DELAY_FADE);
+    } while(!exitCondition);
+  }
+  else
+  {
+    uint8_t step_r = LIGHT_VALUE_R;
+    uint8_t step_g = LIGHT_VALUE_G;
+    uint8_t step_b = LIGHT_VALUE_B;
+    do
+    { 
+      for(uint8_t i = 0; i < NUM_LEDS; i++) 
+      {
+        leds[i] = CRGB(step_r,step_g,step_b);
+      }
+
+      --step_r <= 1 ? step_r = 1 : step_r = step_r;
+      --step_g <= 1 ? step_g = 1 : step_g = step_g;
+      --step_b <= 1 ? step_b = 1 : step_b = step_b;
+
+      if( (step_r == 1) && (step_g == 1) && (step_b == 1) )
+      {
+        exitCondition = true;
+        for(uint8_t i = 0; i < NUM_LEDS; i++) 
+        {
+          leds[i] = CRGB(0,0,0);
+        }
+      }
+      
+      FastLED.show();
+      delay(DELAY_FADE);
+    } while(!exitCondition); 
+  }
+}
+
 
 void set_lights(bool state)
 {
@@ -137,26 +218,37 @@ void set_lights(bool state)
 #if (DEBUG_ENABLED == 1)
       Serial.println("LIGHTS ON");
 #endif
+
+#if (LIGHT_EFFECT == 1)
+      led_array_effect(state);
+#elif (LIGHT_EFFECT == 2)
+      fade_effect(state);
+#else
       for(uint8_t i = 0; i < NUM_LEDS; i++)
       {
-        leds[i] = CRGB(LIGHT_VALUE_R,LIGHT_VALUE_G,LIGHT_VALUE_B);
-        FastLED.show();
-        delay(100);
-      }      
+        leds[i] = CRGB(LIGHT_VALUE_R,LIGHT_VALUE_G,LIGHT_VALUE_B);        
+      }
+      FastLED.show();
+#endif      
     }
     else
     {
 #if (DEBUG_ENABLED == 1)
       Serial.println("LIGHTS OFF");
 #endif
+
+#if (LIGHT_EFFECT == 1)
+      led_array_effect(state);
+#elif (LIGHT_EFFECT == 2)
+      fade_effect(state);
+#else
       for(uint8_t i = 0; i < NUM_LEDS; i++)
       {
-        leds[i] = CRGB(0,0,0);
-        FastLED.show();
-        delay(100);
-      }    
-    }  
-    FastLED.show();      
+        leds[i] = CRGB(0,0,0);        
+      }
+      FastLED.show();
+#endif
+    }      
   }   
 }
 
