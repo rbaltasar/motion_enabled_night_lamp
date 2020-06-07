@@ -252,17 +252,29 @@ void set_lights(bool state)
   }   
 }
 
+void on_delay()
+{
+  Serial.println("Starting ON delay");
+  
+  int const delay_time = 1000;
+  unsigned long num_delays = ACTIVE_TIME / delay_time; // 1000ms delay
+
+  for(int i = 0; i < num_delays; i++){
+    Serial.print("Time left: ");
+    Serial.print((num_delays - i) * delay_time);
+    Serial.println(" ms");
+    delay(delay_time);
+  }
+}
+
 void apply_logic()
 {
 
-  /* Evaluate only if the activation time has expired */
-  unsigned long current_time = millis();  
-  if(abs(current_time - last_activation) > ACTIVE_TIME)
-  {    
     /* Compute the time difference between detections */  
     noInterrupts();
     unsigned long detection_difference_0 = abs(last_detection[0] - last_detection[1]);
     /* Compute the time since the last detection */
+    unsigned long current_time = millis();
     unsigned long time_since_detection_0 = current_time - last_detection[0];
     unsigned long time_since_detection_1 = current_time - last_detection[1];   
     interrupts(); 
@@ -277,7 +289,7 @@ void apply_logic()
       if( (time_since_detection_0 < DETECTION_INTERVAL) && (time_since_detection_1 < DETECTION_INTERVAL) )
 #endif
       {        
-        last_activation = current_time;        
+        on_delay();   
       }
       /* Decide to switch OFF */
       else
@@ -299,11 +311,10 @@ void apply_logic()
       /* Decide to switch ON */
       if( (time_since_detection_0 < DETECTION_INTERVAL) && (time_since_detection_1 < DETECTION_INTERVAL) && (light < LIGHT_THRESHOLD) )
       {
-        last_activation = current_time;  
-        set_lights(true);      
+        set_lights(true);
+        on_delay();
       }
     }       
-  }
 }
 
 #if (DEBUG_ENABLED == 1)
