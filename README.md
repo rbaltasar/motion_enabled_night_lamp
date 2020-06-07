@@ -63,9 +63,10 @@ To configure the software and flash it into your Arduino, follow the next steps:
   * DOUBLE_MOTION: once the light is ON, the timer will be restarted only if the ON condition is triggered again (both sensors detect motion within a defined time).
 3. Flash the software into the Arduino.
 
-#Final result
+# Final result
 It is not the prettiest home automation gadget, but it does its job.
 ![Alt text](Images/Lamp_off.JPG)
 ![Alt text](Images/Lamp_on.JPG)
 
 Here a video of the lamp doing its thing:
+https://youtu.be/2kOvvQYK9II
